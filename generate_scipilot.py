@@ -15,33 +15,33 @@ def main():
     for svc in services:
         # __init__.py
         write_file(f'services/{svc}/__init__.py', '')
-        
+
         # main.py
         write_file(f'services/{svc}/main.py', f'''
             from fastapi import FastAPI
             from pydantic import BaseModel
             from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-            
+
             app = FastAPI(title="{svc}")
-            
+
             class HealthResponse(BaseModel):
                 status: str
                 service: str
-            
+
             @app.get("/health", response_model=HealthResponse)
             async def health_check() -> HealthResponse:
                 return HealthResponse(status="ok", service="{svc}")
-                
+
             FastAPIInstrumentor.instrument_app(app)
         ''')
-        
+
         # Dockerfile
         write_file(f'services/{svc}/Dockerfile', '''
             FROM python:3.11-slim as builder
             WORKDIR /app
             COPY requirements.txt .
             RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
-            
+
             FROM python:3.11-slim
             WORKDIR /app
             COPY --from=builder /app/wheels /wheels
@@ -52,7 +52,7 @@ def main():
             USER appuser
             CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
         ''')
-        
+
         # requirements.txt
         write_file(f'services/{svc}/requirements.txt', '''
             fastapi==0.109.0
@@ -62,12 +62,12 @@ def main():
             opentelemetry-sdk==1.22.0
             opentelemetry-instrumentation-fastapi==0.43b0
         ''')
-        
+
         # pyproject.toml
         write_file(f'services/{svc}/pyproject.toml', '''
             [tool.ruff]
             line-length = 88
-            
+
             [tool.mypy]
             python_version = "3.11"
             strict = true
@@ -81,33 +81,33 @@ def main():
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
         from jose import jwt
         import httpx
-        
+
         app = FastAPI(title="api-gateway")
-        
+
         class HealthResponse(BaseModel):
             status: str
             service: str
-            
+
         class User(BaseModel):
             username: str
             password: str
-            
+
         class Token(BaseModel):
             access_token: str
             token_type: str
-        
+
         @app.get("/health", response_model=HealthResponse)
         async def health_check() -> HealthResponse:
             return HealthResponse(status="ok", service="api-gateway")
-            
+
         @app.post("/auth/register", response_model=Token)
         async def register(user: User) -> Token:
             return Token(access_token="dummy", token_type="bearer")
-            
+
         @app.post("/auth/login", response_model=Token)
         async def login(user: User) -> Token:
             return Token(access_token="dummy", token_type="bearer")
-            
+
         FastAPIInstrumentor.instrument_app(app)
     ''')
 
@@ -117,27 +117,27 @@ def main():
         from pydantic import BaseModel
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
         import asyncpg
-        
+
         app = FastAPI(title="vector-service")
-        
+
         class HealthResponse(BaseModel):
             status: str
             service: str
-            
+
         class EmbedRequest(BaseModel):
             text: str
-            
+
         class EmbedResponse(BaseModel):
             embedding: list[float]
-            
+
         @app.get("/health", response_model=HealthResponse)
         async def health_check() -> HealthResponse:
             return HealthResponse(status="ok", service="vector-service")
-            
+
         @app.post("/embed", response_model=EmbedResponse)
         async def embed(req: EmbedRequest) -> EmbedResponse:
             return EmbedResponse(embedding=[0.1, 0.2, 0.3])
-            
+
         FastAPIInstrumentor.instrument_app(app)
     ''')
 
@@ -146,27 +146,27 @@ def main():
         from fastapi import FastAPI
         from pydantic import BaseModel
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-        
+
         app = FastAPI(title="agent-service")
-        
+
         class HealthResponse(BaseModel):
             status: str
             service: str
-            
+
         class AgentRequest(BaseModel):
             query: str
-            
+
         class AgentResponse(BaseModel):
             result: str
-            
+
         @app.get("/health", response_model=HealthResponse)
         async def health_check() -> HealthResponse:
             return HealthResponse(status="ok", service="agent-service")
-            
+
         @app.post("/run", response_model=AgentResponse)
         async def run_agent(req: AgentRequest) -> AgentResponse:
             return AgentResponse(result="Agent result")
-            
+
         FastAPIInstrumentor.instrument_app(app)
     ''')
 
@@ -175,27 +175,27 @@ def main():
         from fastapi import FastAPI
         from pydantic import BaseModel
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-        
+
         app = FastAPI(title="graph-service")
-        
+
         class HealthResponse(BaseModel):
             status: str
             service: str
-            
+
         class GraphIngestRequest(BaseModel):
             text: str
-            
+
         class GraphIngestResponse(BaseModel):
             nodes_created: int
-            
+
         @app.get("/health", response_model=HealthResponse)
         async def health_check() -> HealthResponse:
             return HealthResponse(status="ok", service="graph-service")
-            
+
         @app.post("/ingest", response_model=GraphIngestResponse)
         async def ingest(req: GraphIngestRequest) -> GraphIngestResponse:
             return GraphIngestResponse(nodes_created=5)
-            
+
         FastAPIInstrumentor.instrument_app(app)
     ''')
 
@@ -204,27 +204,27 @@ def main():
         from fastapi import FastAPI
         from pydantic import BaseModel
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-        
+
         app = FastAPI(title="cache-service")
-        
+
         class HealthResponse(BaseModel):
             status: str
             service: str
-            
+
         class CacheRequest(BaseModel):
             key: str
-            
+
         class CacheResponse(BaseModel):
             value: str | None
-            
+
         @app.get("/health", response_model=HealthResponse)
         async def health_check() -> HealthResponse:
             return HealthResponse(status="ok", service="cache-service")
-            
+
         @app.post("/cache/get", response_model=CacheResponse)
         async def cache_get(req: CacheRequest) -> CacheResponse:
             return CacheResponse(value="cached_value")
-            
+
         FastAPIInstrumentor.instrument_app(app)
     ''')
 
@@ -233,27 +233,27 @@ def main():
         from fastapi import FastAPI
         from pydantic import BaseModel
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-        
+
         app = FastAPI(title="report-service")
-        
+
         class HealthResponse(BaseModel):
             status: str
             service: str
-            
+
         class ReportRequest(BaseModel):
             markdown: str
-            
+
         class ReportResponse(BaseModel):
             url: str
-            
+
         @app.get("/health", response_model=HealthResponse)
         async def health_check() -> HealthResponse:
             return HealthResponse(status="ok", service="report-service")
-            
+
         @app.post("/generate/pdf", response_model=ReportResponse)
         async def generate_pdf(req: ReportRequest) -> ReportResponse:
             return ReportResponse(url="http://minio:9000/scipilot/report.pdf")
-            
+
         FastAPIInstrumentor.instrument_app(app)
     ''')
 
@@ -267,25 +267,25 @@ def main():
         CREATE TABLE research_sessions (id SERIAL PRIMARY KEY, user_id INT);
         CREATE INDEX ON chunks USING ivfflat (embedding vector_cosine_ops);
     ''')
-    
+
     write_file('infrastructure/postgres/migrations/env.py', '''
         from logging.config import fileConfig
         from sqlalchemy import engine_from_config, pool
         from alembic import context
         import os
-        
+
         config = context.config
         if config.config_file_name is not None:
             fileConfig(config.config_file_name)
-            
+
         target_metadata = None
-        
+
         def run_migrations_offline() -> None:
             url = os.environ.get("DATABASE_URL")
             context.configure(url=url, target_metadata=target_metadata, literal_binds=True, dialect_opts={"paramstyle": "named"})
             with context.begin_transaction():
                 context.run_migrations()
-                
+
         def run_migrations_online() -> None:
             configuration = config.get_section(config.config_ini_section)
             configuration["sqlalchemy.url"] = os.environ.get("DATABASE_URL")
@@ -294,13 +294,13 @@ def main():
                 context.configure(connection=connection, target_metadata=target_metadata)
                 with context.begin_transaction():
                     context.run_migrations()
-                    
+
         if context.is_offline_mode():
             run_migrations_offline()
         else:
             run_migrations_online()
     ''')
-    
+
     write_file('infrastructure/postgres/migrations/alembic.ini', '''
         [alembic]
         script_location = infrastructure/postgres/migrations
@@ -311,26 +311,26 @@ def main():
         script_location = infrastructure/postgres/migrations
         sqlalchemy.url = postgresql://user:pass@localhost/dbname
     ''')
-    
+
     write_file('infrastructure/redis/redis.conf', '''
         maxmemory 512mb
         maxmemory-policy allkeys-lru
         save ""
     ''')
-    
+
     write_file('infrastructure/neo4j/seed.cypher', '''
         CREATE CONSTRAINT FOR (p:Paper) REQUIRE p.doi IS UNIQUE;
         CREATE CONSTRAINT FOR (a:Author) REQUIRE a.name IS UNIQUE;
         CREATE CONSTRAINT FOR (c:Compound) REQUIRE c.name IS UNIQUE;
         CREATE (c:Compound {name: "Aspirin"})-[:FOUND_IN]->(p:Paper {doi: "10.1000/xyz123"});
     ''')
-    
+
     write_file('infrastructure/minio/init.sh', '''
         #!/bin/sh
         mc alias set local http://minio:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
         mc mb local/scipilot --ignore-existing
     ''')
-    
+
     write_file('infrastructure/prometheus/prometheus.yml', '''
         global:
           scrape_interval: 15s
@@ -345,7 +345,7 @@ def main():
             static_configs:
               - targets: ['redis-exporter:9121']
     ''')
-    
+
     write_file('infrastructure/prometheus/alert_rules.yml', '''
         groups:
         - name: scipilot_alerts
@@ -379,7 +379,7 @@ def main():
             annotations:
               summary: High Token Cost
     ''')
-    
+
     write_file('infrastructure/grafana/datasources.yml', '''
         apiVersion: 1
         datasources:
@@ -389,7 +389,7 @@ def main():
             url: http://prometheus:9090
             isDefault: true
     ''')
-    
+
     write_file('infrastructure/grafana/dashboards/scipilot.json', '''
         {
           "title": "SciPilot Dashboard",
@@ -400,7 +400,7 @@ def main():
           ]
         }
     ''')
-    
+
     write_file('infrastructure/jaeger/otel-collector.yml', '''
         receivers:
           otlp:
@@ -426,7 +426,7 @@ def main():
         metadata:
           name: scipilot
     ''')
-    
+
     for svc in services:
         write_file(f'kubernetes/deployments/{svc}-deployment.yaml', f'''
             apiVersion: apps/v1
@@ -474,7 +474,7 @@ def main():
                       initialDelaySeconds: 5
                       periodSeconds: 10
         ''')
-        
+
         write_file(f'kubernetes/services/{svc}-svc.yaml', f'''
             apiVersion: v1
             kind: Service
@@ -517,7 +517,7 @@ def main():
                     port:
                       number: 3000
     ''')
-    
+
     write_file('kubernetes/hpa/hpa-agent-service.yaml', '''
         apiVersion: autoscaling/v2
         kind: HorizontalPodAutoscaler
@@ -539,7 +539,7 @@ def main():
                 type: Utilization
                 averageUtilization: 70
     ''')
-    
+
     write_file('kubernetes/pvc/postgres-pvc.yaml', '''
         apiVersion: v1
         kind: PersistentVolumeClaim
@@ -579,7 +579,7 @@ def main():
             requests:
               storage: 5Gi
     ''')
-    
+
     write_file('kubernetes/secrets/secrets.yaml', '''
         apiVersion: v1
         kind: Secret
@@ -592,7 +592,7 @@ def main():
           ANTHROPIC_API_KEY: c2VjcmV0cGxhY2Vob2xkZXI=
           POSTGRES_PASSWORD: c2VjcmV0cGxhY2Vob2xkZXI=
     ''')
-    
+
     write_file('kubernetes/configmap.yaml', '''
         apiVersion: v1
         kind: ConfigMap
@@ -638,7 +638,7 @@ def main():
             - uses: actions/checkout@v3
             - run: echo "trivy scan"
     ''')
-    
+
     write_file('.github/workflows/deploy.yml', '''
         name: Deploy
         on:
@@ -665,44 +665,44 @@ def main():
           )
         }
     ''')
-    
+
     write_file('frontend/app/research/page.tsx', '''
         export default function Research() {
           return <div>Research Interface</div>
         }
     ''')
-    
+
     write_file('frontend/components/AgentStream.tsx', '''
         export default function AgentStream() {
           return <div>Agent Stream SSE</div>
         }
     ''')
-    
+
     write_file('frontend/components/PaperUpload.tsx', '''
         export default function PaperUpload() {
           return <div>Drag and drop PDF upload</div>
         }
     ''')
-    
+
     write_file('frontend/components/KnowledgeGraph.tsx', '''
         export default function KnowledgeGraph() {
           return <div>Neo4j Graph Visualization</div>
         }
     ''')
-    
+
     write_file('frontend/components/ReportViewer.tsx', '''
         export default function ReportViewer() {
           return <div>Markdown Report Renderer</div>
         }
     ''')
-    
+
     write_file('frontend/lib/api.ts', '''
         export const fetchApi = async (path: string) => {
             const res = await fetch(`/api${path}`);
             return res.json();
         }
     ''')
-    
+
     write_file('frontend/Dockerfile', '''
         FROM node:18-alpine AS builder
         WORKDIR /app
@@ -710,7 +710,7 @@ def main():
         RUN npm install
         COPY . .
         RUN npm run build
-        
+
         FROM node:18-alpine
         WORKDIR /app
         COPY --from=builder /app/.next ./.next
@@ -718,7 +718,7 @@ def main():
         COPY --from=builder /app/package.json ./package.json
         CMD ["npm", "start"]
     ''')
-    
+
     write_file('frontend/package.json', '''
         {
           "name": "scipilot-frontend",
@@ -746,12 +746,12 @@ def main():
         def test_agent_node():
             assert True
     ''')
-    
+
     write_file('tests/integration/test_api.py', '''
         def test_api_flow():
             assert True
     ''')
-    
+
     write_file('tests/e2e/test_research_flow.py', '''
         def test_research_flow():
             assert True
@@ -760,12 +760,12 @@ def main():
     # Docs
     write_file('docs/architecture.md', '''
         # Architecture
-        
+
         ```text
         [Frontend] -> [API Gateway] -> [Agent Service] -> [Vector/Graph/Cache/Report]
         ```
     ''')
-    
+
     write_file('docs/runbook.md', '''
         # Runbook
         ## Local dev
@@ -778,7 +778,7 @@ def main():
             print("| Metric | Value |")
             print("|---|---|")
             print("| P99 Latency | 1.2s |")
-            
+
         if __name__ == "__main__":
             run_benchmarks()
     ''')
@@ -787,18 +787,18 @@ def main():
     write_file('README.md', '''
         # SciPilot
         Production-grade multi-agent AI research platform for scientists.
-        
+
         ## Architecture
         ```text
         [Frontend] -> [API Gateway] -> [Agent Service] -> [Vector/Graph/Cache/Report]
         ```
-        
+
         ## Quick Start
         ```bash
         make setup
         make up
         ```
-        
+
         ## Services
         - api-gateway (8000)
         - agent-service (8001)
@@ -806,7 +806,7 @@ def main():
         - graph-service (8003)
         - cache-service (8004)
         - report-service (8005)
-        
+
         [Docs](docs/architecture.md)
     ''')
 
