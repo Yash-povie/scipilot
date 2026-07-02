@@ -13,9 +13,6 @@ def main():
     # 1. Services
     services = ['api-gateway', 'agent-service', 'vector-service', 'graph-service', 'cache-service', 'report-service']
     for svc in services:
-        port = {'api-gateway': 8000, 'agent-service': 8001, 'vector-service': 8002, 
-                'graph-service': 8003, 'cache-service': 8004, 'report-service': 8005}[svc]
-        
         # __init__.py
         write_file(f'services/{svc}/__init__.py', '')
         

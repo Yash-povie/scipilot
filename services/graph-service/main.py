@@ -2,7 +2,7 @@ import os
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from neo4j import AsyncGraphDatabase
 from anthropic import AsyncAnthropic

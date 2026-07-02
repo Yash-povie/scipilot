@@ -1,4 +1,3 @@
-import os
 import glob
 
 dockerfiles = glob.glob("services/*/Dockerfile")

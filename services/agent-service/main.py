@@ -1,3 +1,4 @@
+from agents.graph import create_graph
 from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
@@ -17,7 +18,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from agents.graph import create_graph
 graph = create_graph()
 
 _context_store: dict[str, str] = {}
@@ -61,7 +61,7 @@ async def stream_agent(query: str, request: Request, session_id: str = ""):
     async def event_generator():
         full_query = query
         if context:
-            # Send first 6000 chars of doc — enough for Groq context window
+            # Send first 6000 chars of doc â€” enough for Groq context window
             full_query = f"{query}\n\n=== DOCUMENT CONTENT ===\n{context[:6000]}"
 
         initial_state = {
