@@ -1,0 +1,12 @@
+name: Deploy
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: echo "Build and push to ECR"
+    - run: echo "kubectl set image deployment/api-gateway api-gateway=scipilot/api-gateway:latest -n scipilot"
+    - run: echo "kubectl rollout status deployment/api-gateway -n scipilot"
